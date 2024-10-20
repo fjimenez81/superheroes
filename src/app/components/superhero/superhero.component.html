@@ -1,0 +1,29 @@
+<div class="container">
+
+	<h1>Create super hero</h1>
+
+	<form [formGroup]="form" (ngSubmit)="onSubmit()">
+		<div class="form-control file">
+			<mat-label>Imagen</mat-label>
+			<input #img_file type="file" formControlName="img" (change)="onFileChange($event)"/>
+		</div>
+		<div class="form-control">
+			<button mat-stroked-button (click)="openFile()">Import avatar</button>
+			<p #text_file class="text-file"></p>
+			<img width="200" src="{{urlImage}}"/>
+		</div>
+		<mat-form-field  >
+			<mat-label>Name</mat-label>
+			<input matInput formControlName="name" placeholder="Name" />
+		</mat-form-field>
+		<mat-form-field >
+			<mat-label>Powers</mat-label>
+			<textarea matInput rows="8" formControlName="powers"></textarea>
+		</mat-form-field>
+		<div >
+			<button type="submit" mat-stroked-button color="primary">Submit</button>
+		</div>
+
+	</form>
+</div>
+

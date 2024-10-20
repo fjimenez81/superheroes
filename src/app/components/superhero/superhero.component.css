@@ -1,0 +1,30 @@
+.container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	width: 100%;
+	margin: 6% 0;
+}
+
+.container form {
+	display: flex;
+	flex-direction: column;
+	border: 1px solid #00000044;
+	padding: 2%;
+	border-radius: 7px;
+	width: 29%;
+}
+
+.container form .form-control {
+	margin: 2rem 0;
+}
+
+.form-control.file {
+	visibility: hidden;
+	position: absolute;
+}
+
+.text-file {
+	margin-top: 1rem;
+}

@@ -1,0 +1,23 @@
+/* Estilos para el contenedor del sidenav */
+.sidenav-container {
+	height: 100%;
+}
+
+.sidenav {
+	width: 250px;
+}
+
+.content {
+	padding: 16px;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 600px) {
+	.sidenav {
+		width: 200px;
+	}
+
+	.content {
+		padding: 8px;
+	}
+}
