@@ -117,6 +117,7 @@ export class DatabaseService {
 			request.onsuccess = (event: any) => {
 				const cursor = event.target.result;
 				if (cursor) {
+					cursor.value.url = URL.createObjectURL(cursor.value.img)
 					superheroes.push(cursor.value);
 					cursor.continue();
 				} else {

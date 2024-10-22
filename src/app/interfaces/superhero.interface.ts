@@ -3,4 +3,5 @@ export interface ISuperhero {
 	name: string;
 	powers: string;
 	img: File;
+	url?: string
 }

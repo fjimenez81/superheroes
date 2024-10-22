@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnInit, signal, ViewChild} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators, FormsModule} from '@angular/forms';
 import {NgIf} from "@angular/common";
 import {DatabaseService} from "../../services/database.service";
@@ -26,17 +26,26 @@ import {ActivatedRoute} from "@angular/router";
 })
 export class SuperheroComponent implements OnInit {
 
-	form: FormGroup
-	nameControl: FormControl
-	imgControl: FormControl
-	powersControl: FormControl
-	selectedFile: File
+	nameControl:  FormControl = new FormControl('')
+	imgControl: FormControl = new FormControl([null])
+	powersControl: FormControl = new FormControl('')
+
+	form: FormGroup = this.formBuilder.group({
+		name: this.nameControl,
+		img: new FormControl([null]),
+		powers: this.powersControl
+	});
+
+	selectedFile: File |undefined
 	srcImg: string
 	superHero_id: string | null
 	urlImage: string
 
+	nameFile = signal<string>('')
+
+	btnDisable = signal('false')
+
 	@ViewChild('img_file') inputFile!: ElementRef;
-	@ViewChild('text_file') textFile!: ElementRef;
 
 	constructor(private formBuilder: FormBuilder, private databaseService: DatabaseService, private route: ActivatedRoute) {
 
@@ -64,11 +73,7 @@ export class SuperheroComponent implements OnInit {
 				powers: this.powersControl
 			});
 		} else {
-			this.form = this.formBuilder.group({
-				name: this.nameControl,
-				img: new FormControl([null]),
-				powers: this.powersControl
-			});
+
 			this.databaseService.openDb().then(() => {
 				this.databaseService.getSuperheroe(+this.superHero_id!).then(superhero => {
 					this.urlImage = URL.createObjectURL(superhero.img);
@@ -101,9 +106,10 @@ export class SuperheroComponent implements OnInit {
 		const input = event.target as HTMLInputElement;
 
 		if (input.files && input.files.length > 0) {
-			const file = input.files[0]
+			const file = input?.files[0]
 			this.selectedFile = file
-			this.textFile.nativeElement.innerHTML = file.name
+			this.nameFile.set(file.name)
+
 		}
 	}
 
@@ -112,17 +118,18 @@ export class SuperheroComponent implements OnInit {
 	}*/
 
 	onSubmit(): void {
-
+		this.btnDisable.set('')
 		if (this.superHero_id) {
 
 			const superHero: ISuperhero = {
 				id: +this.superHero_id,
 				name: this.form.get('name')?.value,
 				powers: this.form.get('powers')?.value,
-				img: this.selectedFile
+				img: this.selectedFile!
 			}
 
 			this.databaseService.updateSuperhero(superHero)
+			this.btnDisable.set('false')
 		} else {
 			if (this.selectedFile) {
 
@@ -132,10 +139,12 @@ export class SuperheroComponent implements OnInit {
 					powers: this.form.get('powers')?.value,
 					img: this.selectedFile
 				}
+				this.databaseService.openDb().then(() => {
+					this.databaseService.saveSuperhero(superHero).then(id => {
+						console.log(`Imagen guardada con ID: ${id}`);
+					}).catch(console.error);
+				})
 
-				this.databaseService.saveSuperhero(superHero).then(id => {
-					console.log(`Imagen guardada con ID: ${id}`);
-				}).catch(console.error);
 
 				/*this.databaseService.saveImg(this.selectedFile).then(id => {
 					console.log(`Imagen guardada con ID: ${id}`);

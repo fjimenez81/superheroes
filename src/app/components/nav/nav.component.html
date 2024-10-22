@@ -1,21 +1,19 @@
-<mat-toolbar color="primary">
-	<button mat-icon-button (click)="sidenav.toggle()">
-		<mat-icon>menu</mat-icon>
-	</button>
-
-</mat-toolbar>
-
 <mat-sidenav-container class="sidenav-container">
-	<mat-sidenav #sidenav mode="over" class="sidenav">
+	<mat-sidenav #sidenav mode="side" >
 		<mat-nav-list>
-			<ul>
-				<li><a mat-list-item routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page">Home</a></li>
-				<li><a mat-list-item routerLink="/superhero" routerLinkActive="active" ariaCurrentWhenActive="page">Create</a></li>
-			</ul>
+			<li (click)="toggleSidenav()"><a mat-list-item routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page">Home</a></li>
+			<li (click)="toggleSidenav()"><a mat-list-item routerLink="/superhero" routerLinkActive="active" ariaCurrentWhenActive="page">Create</a></li>
 		</mat-nav-list>
 	</mat-sidenav>
-
 	<mat-sidenav-content>
-		<router-outlet />
+		<mat-toolbar color="primary">
+			<button mat-icon-button (click)="toggleSidenav()">
+				<mat-icon>menu</mat-icon>
+			</button>
+			<span>SUPER HEROES</span>
+		</mat-toolbar>
+		<div class="main-content">
+			<router-outlet></router-outlet>
+		</div>
 	</mat-sidenav-content>
 </mat-sidenav-container>
