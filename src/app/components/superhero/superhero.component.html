@@ -5,12 +5,14 @@
 	<form [formGroup]="form" (ngSubmit)="onSubmit()">
 		<div class="form-control file">
 			<mat-label>Imagen</mat-label>
-			<input #img_file type="file" formControlName="img" (change)="onFileChange($event)"/>
+			<input #img_file type="file" formControlName="img" (change)="onFileChange($event)"
+				   accept="image/jpg,image/png,image/jpeg,image/webp"/>
 		</div>
 		<div class="form-control">
 			<button mat-stroked-button (click)="openFile()">Import avatar</button>
 			<p #text_file class="text-file">{{ nameFile() }}</p>
-			<img width="200" src="{{urlImage}}"/>
+			<!--<img width="200" src="{{urlImage}}"/>-->
+			<div  [ngStyle]="{'background-image': 'url(' + urlImage + ')'}" class="card-image"></div>
 		</div>
 		<mat-form-field  >
 			<mat-label>Name</mat-label>

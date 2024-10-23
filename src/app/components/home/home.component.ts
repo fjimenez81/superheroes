@@ -3,7 +3,9 @@ import {DatabaseService} from "../../services/database.service";
 import {ISuperhero} from "../../interfaces/superhero.interface";
 import {MatCard, MatCardContent, MatCardHeader} from "@angular/material/card";
 import {NgOptimizedImage, NgStyle} from "@angular/common";
-import {RouterLink} from "@angular/router";
+import {Router, RouterLink} from "@angular/router";
+import {MatIcon} from "@angular/material/icon";
+import {MatButtonToggle} from "@angular/material/button-toggle";
 
 @Component({
   selector: 'app-home',
@@ -14,7 +16,9 @@ import {RouterLink} from "@angular/router";
 		MatCardContent,
 		NgOptimizedImage,
 		NgStyle,
-		RouterLink
+		RouterLink,
+		MatIcon,
+		MatButtonToggle
 	],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
@@ -22,7 +26,7 @@ import {RouterLink} from "@angular/router";
 export class HomeComponent implements OnInit {
 
 	superheroes: ISuperhero[]
-	constructor(private databaseService: DatabaseService) {
+	constructor(private databaseService: DatabaseService, private router: Router) {
 	}
 	ngOnInit() {
 		this.databaseService.openDb().then(() => {
@@ -39,4 +43,23 @@ export class HomeComponent implements OnInit {
 
 		return <string>URL.createObjectURL(file)
 	}
+
+	editSuperHero(id: number):void {
+		this.router.navigate([`/superhero/${id}`])
+	}
+
+	removeSuperHero(id: number):void {
+
+		const confirm = window.confirm('Do you want remove this superhero?') as boolean
+		if (confirm) {
+			this.databaseService.openDb().then(() => {
+				this.databaseService.deleteSuperhero(+id)
+				this.databaseService.getAllSuperheroes().then((superheroes => {
+					this.superheroes = superheroes
+				}))
+			})
+		}
+
+	}
+
 }

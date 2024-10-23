@@ -29,4 +29,13 @@
 	margin-top: 1rem;
 }
 
+.card-image {
+	width: 150px;
+	height: 150px;
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: center;
+	border-radius: 8px;
+}
+
 

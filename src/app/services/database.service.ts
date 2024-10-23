@@ -117,7 +117,10 @@ export class DatabaseService {
 			request.onsuccess = (event: any) => {
 				const cursor = event.target.result;
 				if (cursor) {
-					cursor.value.url = URL.createObjectURL(cursor.value.img)
+					if (cursor.value.img instanceof Blob) {
+						cursor.value.url = URL.createObjectURL(cursor.value.img)
+					}
+
 					superheroes.push(cursor.value);
 					cursor.continue();
 				} else {
@@ -130,6 +133,48 @@ export class DatabaseService {
 			};
 		});
 	}
+
+	/*public getAllSuperheroes(offset: number = 0, limit: number = 9): Promise<ISuperhero[]> {
+		return new Promise((resolve, reject) => {
+			const transaction = this.db?.transaction(['superheroes'], 'readonly');
+			const store = transaction?.objectStore('superheroes');
+			const superheroes: ISuperhero[] = [];
+
+			let skipped = 0; // Variable para saltar elementos hasta el offset
+			let fetched = 0; // Contador para limitar el número de elementos devueltos
+
+			const request = store?.openCursor();
+			// @ts-ignore
+			request.onsuccess = (event: any) => {
+				const cursor = event.target.result;
+
+				if (cursor) {
+					if (skipped < offset) {
+						// Si aún no hemos llegado al offset, seguimos saltando elementos
+						skipped++;
+						cursor.continue();
+					} else if (fetched < limit) {
+						// Una vez que hemos alcanzado el offset, empezamos a agregar elementos
+						cursor.value.url = URL.createObjectURL(cursor.value.img);
+						superheroes.push(cursor.value);
+						fetched++;
+						cursor.continue();
+					} else {
+						// Si hemos alcanzado el límite, resolvemos la promesa
+						resolve(superheroes);
+					}
+				} else {
+					// Si ya no hay más elementos en el cursor, resolvemos
+					resolve(superheroes);
+				}
+			};
+			// @ts-ignore
+			request.onerror = (event: any) => {
+				reject(event);
+			};
+		});
+	}*/
+
 
 	public updateSuperhero(superhero: ISuperhero) {
 		const transaction = this.db?.transaction(['superheroes'], 'readwrite');

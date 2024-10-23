@@ -1,6 +1,6 @@
 import {Component, ElementRef, OnInit, signal, ViewChild} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators, FormsModule} from '@angular/forms';
-import {NgIf} from "@angular/common";
+import {NgIf, NgStyle} from "@angular/common";
 import {DatabaseService} from "../../services/database.service";
 import {charactersValidator} from "../../../helpers/form.validators";
 import {MatButtonModule} from "@angular/material/button";
@@ -19,7 +19,8 @@ import {ActivatedRoute} from "@angular/router";
 		MatButtonModule,
 		MatFormFieldModule,
 		MatInputModule,
-		FormsModule
+		FormsModule,
+		NgStyle
 	],
 	templateUrl: './superhero.component.html',
 	styleUrl: './superhero.component.css'
@@ -94,6 +95,8 @@ export class SuperheroComponent implements OnInit {
 						img: this.imgControl,
 						powers: this.powersControl
 					});
+					this.selectedFile = superhero.img
+					this.urlImage = URL.createObjectURL(superhero.img)
 				})
 			})
 		}

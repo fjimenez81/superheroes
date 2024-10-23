@@ -1,12 +1,16 @@
 <div style="display: flex;justify-content: center;align-items: center;flex-wrap: wrap;gap: 20px">
 	@for (hero of superheroes; track hero.id) {
-		<a routerLink="/superhero/{{hero.id}}" class="link-image">
+
 			<mat-card>
-				<mat-card-header>{{ hero.name }}</mat-card-header>
+				<mat-card-header style="margin: 1rem 0">{{ hero.name }}</mat-card-header>
 				<div  [ngStyle]="{'background-image': 'url(' + hero.url + ')'}" class="card-image"></div>
-				<mat-card-content>{{ hero. powers }}</mat-card-content>
+				<mat-card-content style="margin: 1rem 0">{{ hero. powers }}</mat-card-content>
+				<div style="display: flex;justify-content: space-evenly;align-items: center;margin: 1rem 0">
+					<mat-button-toggle (click)="removeSuperHero(+hero.id!)"><mat-icon>delete</mat-icon></mat-button-toggle>
+					<mat-button-toggle (click)="editSuperHero(+hero.id!)"><mat-icon>edit</mat-icon></mat-button-toggle>
+				</div>
 			</mat-card>
-		</a>
+
 
 	} @empty {
 		<mat-card>There are no items.</mat-card>
@@ -14,3 +18,4 @@
 </div>
 
 
+<!--<a routerLink="/superhero/{{hero.id}}" class="link-image"><mat-icon>edit</mat-icon></a>-->
