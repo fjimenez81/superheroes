@@ -1,6 +1,6 @@
 <div class="container">
 
-	<h1>Create super hero</h1>
+	<h1 style="color: #ffabf3">{{ title() }} Superhero</h1>
 
 	<form [formGroup]="form" (ngSubmit)="onSubmit()">
 		<div class="form-control file">
@@ -11,16 +11,15 @@
 		<div class="form-control">
 			<button mat-stroked-button (click)="openFile()">Import avatar</button>
 			<p #text_file class="text-file">{{ nameFile() }}</p>
-			<!--<img width="200" src="{{urlImage}}"/>-->
 			<div  [ngStyle]="{'background-image': 'url(' + urlImage + ')'}" class="card-image"></div>
 		</div>
 		<mat-form-field  >
 			<mat-label>Name</mat-label>
-			<input matInput formControlName="name" placeholder="Name" />
+			<input matInput formControlName="name" placeholder="Name" appUppercase/>
 		</mat-form-field>
 		<mat-form-field >
 			<mat-label>Powers</mat-label>
-			<textarea matInput rows="8" formControlName="powers"></textarea>
+			<textarea matInput rows="8" formControlName="powers" maxlength="120"></textarea>
 		</mat-form-field>
 		<div >
 			<button type="submit" mat-stroked-button color="primary" >Submit</button>

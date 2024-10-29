@@ -11,3 +11,71 @@
 	text-decoration: none;
 	color: aliceblue;
 }
+
+.pagination-btn {
+	min-width: 6rem;
+}
+
+.pagination-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 4rem;
+
+	div {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 2rem;
+	}
+}
+
+mat-card {
+	box-shadow: 0 4px 10px rgba(255, 171, 243, 0.5);
+	padding: 2% 4%;
+}
+
+.add-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-bottom: 2rem;
+	mat-icon {
+		margin: 0;
+	}
+
+}
+
+.header-list {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column-reverse;
+	margin-bottom: 2rem;
+}
+
+.card-content {
+	max-height: 100px;
+	min-height: 100px;
+	overflow-y: auto;
+	text-overflow: ellipsis;
+	white-space: normal;
+	margin: 1rem 0;
+	max-width: 18rem;
+}
+
+
+@media (min-width: 767px) {
+	.pagination-container div {
+		width: 20%;
+	}
+
+	.header-list {
+		gap: 50%;
+		flex-direction: row;
+	}
+
+	.add-container {
+		margin-bottom: 0;
+	}
+}

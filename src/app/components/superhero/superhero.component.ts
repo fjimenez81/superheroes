@@ -7,7 +7,8 @@ import {MatButtonModule} from "@angular/material/button";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {ISuperhero} from "../../interfaces/superhero.interface";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
+import {UppercaseDirective} from "../../directives/uppercase.directive";
 
 @Component({
 	selector: 'app-superhero',
@@ -20,7 +21,8 @@ import {ActivatedRoute} from "@angular/router";
 		MatFormFieldModule,
 		MatInputModule,
 		FormsModule,
-		NgStyle
+		NgStyle,
+		UppercaseDirective
 	],
 	templateUrl: './superhero.component.html',
 	styleUrl: './superhero.component.css'
@@ -42,19 +44,25 @@ export class SuperheroComponent implements OnInit {
 	superHero_id: string | null
 	urlImage: string
 
+
+
 	nameFile = signal<string>('')
 
 	btnDisable = signal('false')
 
+	title = signal('Create')
+
 	@ViewChild('img_file') inputFile!: ElementRef;
 
-	constructor(private formBuilder: FormBuilder, private databaseService: DatabaseService, private route: ActivatedRoute) {
+	constructor(private formBuilder: FormBuilder, private databaseService: DatabaseService,
+				private activatedRoute: ActivatedRoute, private router: Router) {
 
 	}
 
-	ngOnInit(): void {
+	async ngOnInit() {
+		await this.databaseService.openDb()
 
-		this.superHero_id = this.route.snapshot.paramMap.get('id');
+		this.superHero_id = this.activatedRoute.snapshot.paramMap.get('id');
 		if (!this.superHero_id) {
 			this.nameControl = new FormControl('', [
 				Validators.required,
@@ -75,8 +83,9 @@ export class SuperheroComponent implements OnInit {
 			});
 		} else {
 
-			this.databaseService.openDb().then(() => {
-				this.databaseService.getSuperheroe(+this.superHero_id!).then(superhero => {
+			this.databaseService.getSuperheroe(+this.superHero_id!).then(superhero => {
+				if (superhero) {
+					this.title.set('Edit')
 					this.urlImage = URL.createObjectURL(superhero.img);
 					this.nameControl = new FormControl(superhero.name, [
 						Validators.required,
@@ -97,13 +106,12 @@ export class SuperheroComponent implements OnInit {
 					});
 					this.selectedFile = superhero.img
 					this.urlImage = URL.createObjectURL(superhero.img)
-				})
+				} else {
+					this.router.navigate([`/superhero`])
+				}
+
 			})
 		}
-
-
-
-
 	}
 	onFileChange(event: Event): void {
 		const input = event.target as HTMLInputElement;
@@ -115,10 +123,6 @@ export class SuperheroComponent implements OnInit {
 
 		}
 	}
-
-	/*get name(): any {
-		return this.form.get('name')
-	}*/
 
 	onSubmit(): void {
 		this.btnDisable.set('')
@@ -133,31 +137,21 @@ export class SuperheroComponent implements OnInit {
 
 			this.databaseService.updateSuperhero(superHero)
 			this.btnDisable.set('false')
+			this.router.navigate([`/`])
 		} else {
 			if (this.selectedFile) {
-
 
 				const superHero: ISuperhero = {
 					name: this.form.get('name')?.value,
 					powers: this.form.get('powers')?.value,
 					img: this.selectedFile
 				}
-				this.databaseService.openDb().then(() => {
-					this.databaseService.saveSuperhero(superHero).then(id => {
-						console.log(`Imagen guardada con ID: ${id}`);
-					}).catch(console.error);
-				})
-
-
-				/*this.databaseService.saveImg(this.selectedFile).then(id => {
+				this.databaseService.saveSuperhero(superHero).then(id => {
 					console.log(`Imagen guardada con ID: ${id}`);
-				}).catch(console.error);*/
+					this.router.navigate([`/`])
+				}).catch(console.error);
 			}
 		}
-
-
-
-
 	}
 
 	openFile(): void {
@@ -176,15 +170,4 @@ export class SuperheroComponent implements OnInit {
 		}).catch(console.error);
 	}
 
-	getImages(): void {
-		this.databaseService.getImages(1).then(blob => {
-			if (blob) {
-				this.srcImg = URL.createObjectURL(blob);
-			}
-		}).catch(console.error);
-	}
-
-	removeImages() {
-		this.databaseService.removeData()
-	}
 }

@@ -10,60 +10,36 @@ export class DatabaseService {
 	private dbVersion = 1;
 	private db: IDBDatabase | null = null;
 
-	/*constructor() {
-		this.openDb();
-	}*/
+	public async openDb(): Promise<IDBDatabase> {
+		try {
+			const db = await new Promise<IDBDatabase>((resolve, reject) => {
+				const request = indexedDB.open(this.dbName, this.dbVersion);
 
+				request.onupgradeneeded = (event) => {
+					this.db = (event.target as IDBOpenDBRequest).result;
+					if (!this.db.objectStoreNames.contains('superheroes')) {
+						this.db.createObjectStore('superheroes', { keyPath: 'id', autoIncrement: true });
+					}
+					console.log('Database upgrade needed and object store created');
+				};
 
+				request.onsuccess = (event) => {
+					this.db = (event.target as IDBOpenDBRequest).result;
+					console.log('Database open successful!');
+					resolve(this.db);
+				};
 
-	public openDb(): Promise<any> {
-		return new Promise((resolve, reject) => {
-			const request = indexedDB.open(this.dbName, this.dbVersion);
+				request.onerror = (event) => {
+					console.error('Error to open database: ', event);
+					reject(new Error('Error to open database'));
+				};
+			});
 
-			request.onupgradeneeded = (event) => {
-				this.db = (event.target as IDBOpenDBRequest).result;
-				if (!this.db.objectStoreNames.contains('superheroes')) {
-					this.db.createObjectStore('superheroes', { keyPath: 'id', autoIncrement: true });
-				}
-				console.log('Database upgrade needed and object store created');
-			};
-
-			request.onsuccess = (event) => {
-				this.db = (event.target as IDBOpenDBRequest).result;
-				console.log('Database open successful!');
-				resolve(this.db); // Resolviendo la promesa con la base de datos abierta
-			};
-
-			request.onerror = (event) => {
-				console.error('Error to open database: ', event);
-				reject('Error to open database: ' + (event.target as any).error?.message || event);
-			};
-		});
-	}
-
-
-	public saveImg(file: File): Promise<number> {
-		return new Promise((resolve, reject) => {
-			if (!this.db) {
-				return reject('Database not initialized');
-			}
-
-			const reader = new FileReader();
-			reader.onload = () => {
-				const blob = new Blob([reader.result as ArrayBuffer], { type: file.type });
-				const transaction = this.db?.transaction(['superheroes'], 'readwrite');
-				const store = transaction?.objectStore('superheroes');
-				const request = store?.add({img: blob });
-
-				// @ts-ignore
-				request.onsuccess = () => resolve(request.result as number);
-				// @ts-ignore
-				request.onerror = (event) => reject('Error al guardar la imagen: ' + event);
-			};
-
-			reader.onerror = (event) => reject('Error al leer el archivo: ' + event);
-			reader.readAsArrayBuffer(file);
-		});
+			return db;
+		} catch (error) {
+			console.error('Failed to open database:', error);
+			throw error;
+		}
 	}
 
 	public saveSuperhero(superhero: ISuperhero): Promise<ISuperhero> {
@@ -105,75 +81,42 @@ export class DatabaseService {
 		});
 	}
 
-	public getAllSuperheroes(): Promise<ISuperhero[]> {
+	public getAllSuperheroes(offset: number = 0, limit: number = 9, nameFilter: string = ''): Promise<ISuperhero[]> {
 		return new Promise((resolve, reject) => {
 			const transaction = this.db?.transaction(['superheroes'], 'readonly');
 			const store = transaction?.objectStore('superheroes');
 			const superheroes: ISuperhero[] = [];
-
+			let currentIndex = 0;
 
 			const request = store?.openCursor();
 			// @ts-ignore
 			request.onsuccess = (event: any) => {
 				const cursor = event.target.result;
-				if (cursor) {
-					if (cursor.value.img instanceof Blob) {
-						cursor.value.url = URL.createObjectURL(cursor.value.img)
+				if (cursor && superheroes.length < limit) {
+					const superhero: ISuperhero = cursor.value;
+					const matchesName = nameFilter
+						? superhero.name.toLowerCase().includes(nameFilter.toLowerCase())
+						: true;
+
+					if (matchesName && currentIndex >= offset) {
+						superhero.url = URL.createObjectURL(superhero.img);
+						superheroes.push(superhero);
 					}
 
-					superheroes.push(cursor.value);
+					if (matchesName || !nameFilter) {
+						currentIndex++;
+					}
 					cursor.continue();
 				} else {
 					resolve(superheroes);
 				}
 			};
 			// @ts-ignore
-			request.onerror = (event: any) => {
-				reject(event);
+			request.onerror = (event) => {
+				reject('Error fetching paginated superheroes');
 			};
 		});
 	}
-
-	/*public getAllSuperheroes(offset: number = 0, limit: number = 9): Promise<ISuperhero[]> {
-		return new Promise((resolve, reject) => {
-			const transaction = this.db?.transaction(['superheroes'], 'readonly');
-			const store = transaction?.objectStore('superheroes');
-			const superheroes: ISuperhero[] = [];
-
-			let skipped = 0; // Variable para saltar elementos hasta el offset
-			let fetched = 0; // Contador para limitar el número de elementos devueltos
-
-			const request = store?.openCursor();
-			// @ts-ignore
-			request.onsuccess = (event: any) => {
-				const cursor = event.target.result;
-
-				if (cursor) {
-					if (skipped < offset) {
-						// Si aún no hemos llegado al offset, seguimos saltando elementos
-						skipped++;
-						cursor.continue();
-					} else if (fetched < limit) {
-						// Una vez que hemos alcanzado el offset, empezamos a agregar elementos
-						cursor.value.url = URL.createObjectURL(cursor.value.img);
-						superheroes.push(cursor.value);
-						fetched++;
-						cursor.continue();
-					} else {
-						// Si hemos alcanzado el límite, resolvemos la promesa
-						resolve(superheroes);
-					}
-				} else {
-					// Si ya no hay más elementos en el cursor, resolvemos
-					resolve(superheroes);
-				}
-			};
-			// @ts-ignore
-			request.onerror = (event: any) => {
-				reject(event);
-			};
-		});
-	}*/
 
 
 	public updateSuperhero(superhero: ISuperhero) {
@@ -205,41 +148,5 @@ export class DatabaseService {
 		request.onerror = (event: any) => {
 			console.error('Error al eliminar el superhéroe:', event);
 		};
-	}
-
-	public getImages(id: number): Promise<Blob | null> {
-		return new Promise((resolve, reject) => {
-			if (!this.db) {
-				return reject('Database not initialized');
-			}
-
-			const transaction = this.db.transaction(['imagenes'], 'readonly');
-			const store = transaction.objectStore('imagenes');
-			const request = store.get(id);
-
-			request.onsuccess = () => resolve(request.result?.imagen || null);
-			request.onerror = (event) => reject('Error al obtener la imagen: ' + event);
-		});
-	}
-
-	public removeData(): Promise<void> {
-		return new Promise((resolve, reject) => {
-			const deleteRequest = indexedDB.deleteDatabase(this.dbName);
-
-			deleteRequest.onsuccess = () => {
-				console.log(`Base de datos ${this.dbName} eliminada con éxito`);
-				this.db = null; // Limpia la referencia a la base de datos
-				resolve();
-			};
-
-			deleteRequest.onerror = (event) => {
-				console.error('Error al eliminar la base de datos:', event);
-				reject('Error al eliminar la base de datos');
-			};
-
-			deleteRequest.onblocked = () => {
-				console.warn('La eliminación de la base de datos está bloqueada, cierre otras pestañas.');
-			};
-		});
 	}
 }

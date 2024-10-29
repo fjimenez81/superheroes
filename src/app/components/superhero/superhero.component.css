@@ -3,8 +3,7 @@
 	justify-content: center;
 	align-items: center;
 	flex-direction: column;
-	width: 100%;
-	margin: 6% 0;
+	margin: 2rem;
 }
 
 .container form {
@@ -13,7 +12,8 @@
 	border: 1px solid #00000044;
 	padding: 2%;
 	border-radius: 7px;
-	width: 29%;
+	width: 100%;
+	box-shadow: 0 4px 10px rgba(255, 171, 243, 0.5);
 }
 
 .container form .form-control {
@@ -38,4 +38,9 @@
 	border-radius: 8px;
 }
 
+@media (min-width: 767px) {
+	.container form {
 
+		width: 50%;
+	}
+}

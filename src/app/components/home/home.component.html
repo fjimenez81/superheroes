@@ -1,10 +1,22 @@
+
+<div class="header-list">
+	<mat-form-field  style="width: 20rem;">
+		<mat-label>Search superhero</mat-label>
+		<input matInput type="text" name="" (input)="searchSuperhero($event)">
+	</mat-form-field>
+	<div class="add-container">
+		<button  mat-stroked-button (click)="goToCreateSuperhero()" ><mat-icon>add</mat-icon></button>
+	</div >
+</div>
+
 <div style="display: flex;justify-content: center;align-items: center;flex-wrap: wrap;gap: 20px">
+
 	@for (hero of superheroes; track hero.id) {
 
 			<mat-card>
 				<mat-card-header style="margin: 1rem 0">{{ hero.name }}</mat-card-header>
 				<div  [ngStyle]="{'background-image': 'url(' + hero.url + ')'}" class="card-image"></div>
-				<mat-card-content style="margin: 1rem 0">{{ hero. powers }}</mat-card-content>
+				<mat-card-content class="card-content">{{ hero. powers }}</mat-card-content>
 				<div style="display: flex;justify-content: space-evenly;align-items: center;margin: 1rem 0">
 					<mat-button-toggle (click)="removeSuperHero(+hero.id!)"><mat-icon>delete</mat-icon></mat-button-toggle>
 					<mat-button-toggle (click)="editSuperHero(+hero.id!)"><mat-icon>edit</mat-icon></mat-button-toggle>
@@ -15,7 +27,15 @@
 	} @empty {
 		<mat-card>There are no items.</mat-card>
 	}
+
 </div>
+<div class="pagination-container">
+	<div style="">
+		<button class="pagination-btn" mat-stroked-button (click)="goToPreviousPage()" [disabled]="currentPage === 0">Previous</button>
+		<button class="pagination-btn" mat-stroked-button (click)="goToNextPage()" [disabled]="!hasMoreSuperheroes">Next</button>
+	</div>
+</div >
+
 
 
 <!--<a routerLink="/superhero/{{hero.id}}" class="link-image"><mat-icon>edit</mat-icon></a>-->
